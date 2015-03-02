@@ -1,9 +1,17 @@
 #include "core.h"
 
-Core::Core(QObject *parent) :
-    QObject(parent)
+Core::Core(QCommandLineParser *parser, QObject *parent) :
+    m_parser(parser), QObject(parent)
 {
+
+    foreach (QString option, m_parser->optionNames()) {
+        if (option == "host") {
+
+        }
+    }
+
     m_bluetoothScanner = new BluetoothScanner(this);
+
 
     connect(m_bluetoothScanner, &BluetoothScanner::deviceFound, this, &Core::deviceFound);
 
@@ -21,6 +29,21 @@ void Core::deviceFound(const QBluetoothDeviceInfo &deviceInfo)
         qDebug() << "mac  : " << deviceInfo.address();
         qDebug() << "---------------------------------------";
         m_bluetoothScanner->stopDiscovering();
-        Device *device = new Device(deviceInfo, this);
+
+        m_device = new Device(deviceInfo, this);
+        connect(m_device, &Device::connectionStatusChanged, this, &Core::deviceConnectionStateChanged);
+        connect(m_device, &Device::serviceScanningFinished, this, &Core::serviceScanningFinished);
     }
+}
+
+void Core::deviceConnectionStateChanged()
+{
+    if (m_device->isConnected()) {
+
+    }
+}
+
+void Core::serviceScanningFinished()
+{
+
 }

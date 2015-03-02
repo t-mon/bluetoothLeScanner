@@ -15,7 +15,7 @@ QLowEnergyService *ServiceInfo::service() const
     return m_service;
 }
 
-QString ServiceInfo::getName() const
+QString ServiceInfo::name() const
 {
     if (!m_service)
         return QString();
@@ -23,7 +23,7 @@ QString ServiceInfo::getName() const
     return m_service->serviceName();
 }
 
-QString ServiceInfo::getType() const
+QString ServiceInfo::type() const
 {
     if (!m_service)
         return QString();
@@ -42,7 +42,7 @@ QString ServiceInfo::getType() const
     return result;
 }
 
-QString ServiceInfo::getUuid() const
+QString ServiceInfo::uuidHex() const
 {
     if (!m_service)
         return QString();
@@ -58,4 +58,9 @@ QString ServiceInfo::getUuid() const
         return QStringLiteral("0x") + QString::number(result32, 16);
 
     return uuid.toString().remove(QLatin1Char('{')).remove(QLatin1Char('}'));
+}
+
+QBluetoothUuid ServiceInfo::uuid() const
+{
+    return service()->serviceUuid();
 }

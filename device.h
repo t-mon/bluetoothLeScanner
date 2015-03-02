@@ -10,6 +10,8 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothServiceInfo>
 #include <QLowEnergyController>
+
+#include "serviceinfo.h"
 #include "characteristicinfo.h"
 
 class Device : public QObject
@@ -21,18 +23,22 @@ public:
     QString name() const;
     QBluetoothAddress address() const;
     bool isConnected() const;
+    void discoverServices();
+    void discoverService(QBluetoothUuid serviceUuid);
+    QList<QBluetoothUuid> serviceUuids() const;
 
 private:
     QBluetoothDeviceInfo m_deviceInfo;
     QLowEnergyController *m_controller;
 
     QList<QBluetoothUuid> m_serviceUuids;
-    QList<QLowEnergyService *> m_services;
+    QList<ServiceInfo *> m_services;
     QList<CharacteristicInfo *> m_characteristics;
     bool m_connected;
 
 signals:
     void connectionStatusChanged();
+    void serviceScanningFinished();
 
 private slots:
     void connected();
@@ -40,19 +46,14 @@ private slots:
     void error(QLowEnergyController::Error error);
 
     void serviceDiscovered(const QBluetoothUuid &serviceUuid);
+    void serviceStateChanged(QLowEnergyService::ServiceState newState);
     void serviceScanFinished();
 
-    QString getServiceTypeString(QLowEnergyService *service);
-
     //QLowEnergyService
-    void serviceStateChanged(QLowEnergyService::ServiceState state);
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
-    void confirmedDescriptorWrite(const QLowEnergyDescriptor &descriptor, const QByteArray &value);
+    void serviceCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
     void serviceError(QLowEnergyService::ServiceError error);
+    void confirmedDescriptorWrite(const QLowEnergyDescriptor &descriptor, const QByteArray &value);
 
-    void discoverServices();
-    void discoverService(QBluetoothUuid serviceUuid);
-    void serviceCharacteristicsFound(QLowEnergyService *service);
 
 
 public slots:

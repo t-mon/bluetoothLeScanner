@@ -16,7 +16,7 @@ class BluetoothScanner : public QObject
     Q_OBJECT
 public:
     explicit BluetoothScanner(QObject *parent = 0);
-    bool isAvailable();
+    bool isAvailable(QString hostname = QString());
     void startDiscovering();
     void stopDiscovering();
 

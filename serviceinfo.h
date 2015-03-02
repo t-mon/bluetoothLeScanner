@@ -11,9 +11,10 @@ public:
     ServiceInfo();
     ServiceInfo(QLowEnergyService *service);
     QLowEnergyService *service() const;
-    QString getUuid() const;
-    QString getName() const;
-    QString getType() const;
+    QString uuidHex() const;
+    QBluetoothUuid uuid() const;
+    QString name() const;
+    QString type() const;
 
 signals:
     void serviceChanged();

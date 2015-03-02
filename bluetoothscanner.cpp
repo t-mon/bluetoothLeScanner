@@ -5,7 +5,7 @@ BluetoothScanner::BluetoothScanner(QObject *parent) :
 {
 }
 
-bool BluetoothScanner::isAvailable()
+bool BluetoothScanner::isAvailable(QString hostname)
 {
     //Using default Bluetooth adapter
     QBluetoothLocalDevice localDevice;
@@ -14,9 +14,8 @@ bool BluetoothScanner::isAvailable()
     // Check if Bluetooth is available on this device
     if (!localDevice.isValid()) {
         qWarning() << "ERROR: no bluetooth device found.";
-        return false;
+        exit(-1);
     }
-    QBluetoothAddress adapterAddress = localDevice.address();
 
     // Turn Bluetooth on
     localDevice.powerOn();
@@ -30,16 +29,25 @@ bool BluetoothScanner::isAvailable()
 
     if (remotes.isEmpty()) {
         qWarning() << "ERROR: no bluetooth host info found.";
-        return false;
+        exit(-1);
     }
 
+
+    QBluetoothAddress adapterAddress;
     qDebug() << "======================================";
-    qDebug() << " BluetoothHosts: ";
+    qDebug() << " Bluetooth Hosts: ";
     qDebug() << "---------------------------------------";
     foreach (QBluetoothHostInfo hostInfo, remotes) {
+        if (hostInfo.name() == hostname) {
+            adapterAddress = hostInfo.address();
+        }
         qDebug() << "name :" << hostInfo.name();
         qDebug() << "mac  :" << hostInfo.address().toString();
         qDebug() << "======================================";
+    }
+
+    if (hostname.isEmpty()) {
+        adapterAddress = remotes.first().address();
     }
 
     // Create a discovery agent and connect to its signals
@@ -47,7 +55,6 @@ bool BluetoothScanner::isAvailable()
 
     connect(m_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &BluetoothScanner::deviceDiscovered);
     connect(m_discoveryAgent, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error)), this, SLOT(onError(QBluetoothDeviceDiscoveryAgent::Error)));
-
 
     return true;
 }
@@ -93,6 +100,6 @@ void BluetoothScanner::deviceDiscovered(const QBluetoothDeviceInfo &device)
 void BluetoothScanner::onError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
     qWarning() << "ERROR: Bluetooth discovery" << error << m_discoveryAgent->errorString();
-    exit(0);
+    exit(-1);
 }
 
